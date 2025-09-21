@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelly's Criterion Betting Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .balance-section {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #48bb78;
+        }
+
+        .balance {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .bet-section {
+            background: #edf2f7;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .bet-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bet-stat {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .bet-stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .bet-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .betting-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .bet-input-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .bet-input {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 150px;
+            text-align: center;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .kelly-toggle-section {
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .kelly-section {
+            background: #fff5f5;
+            border: 2px solid #fed7d7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .kelly-section.negative-ev {
+            background: #fffaf0;
+            border-color: #fbd38d;
+        }
+
+        .kelly-recommendation {
+            color: #c53030;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .game-over {
+            background: #fed7d7;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 2px solid #f56565;
+        }
+
+        .game-over h2 {
+            color: #c53030;
+            margin-bottom: 1rem;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .quick-bet-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .quick-bet {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .quick-bet:hover {
+            background: #cbd5e0;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .bet-input-section {
+                flex-direction: column;
+            }
+            
+            .bet-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Kelly's Criterion Betting Game</h1>
+        <p class="subtitle">Maximize your wealth using optimal betting strategies</p>
+        
+        <div class="balance-section">
+            <div class="balance">Balance: $<span id="balance">1000</span></div>
+        </div>
+
+        <div id="gameArea">
+            <div class="bet-section">
+                <h3>Current Betting Opportunity</h3>
+                <div class="bet-info">
+                    <div class="bet-stat">
+                        <div class="bet-stat-label">Win Probability</div>
+                        <div class="bet-stat-value" id="winProbability">50%</div>
+                    </div>
+                    <div class="bet-stat">
+                        <div class="bet-stat-label">Payout Ratio</div>
+                        <div class="bet-stat-value" id="payoutRatio">2:1</div>
+                    </div>
+                </div>
+
+                <div class="kelly-toggle-section">
+                    <button onclick="toggleKellyHints()" class="button btn-secondary" id="kellyToggleBtn">
+                        Show Kelly's Criterion Hints
+                    </button>
+                </div>
+
+                <div class="kelly-section" id="kellyHintsBox" style="display: none;">
+                    <div class="kelly-recommendation">
+                        Kelly's Criterion suggests betting: <span id="kellyRecommendation">10%</span> of bankroll
+                        <br>
+                        <small>That's $<span id="kellyAmount">100</span> from your current balance</small>
+                        <br><br>
+                        <small id="kellyAdvice" style="font-style: italic;"></small>
+                    </div>
+                </div>
+
+                <div class="betting-controls">
+                    <div class="bet-input-section">
+                        <label for="betAmount">Bet Amount: $</label>
+                        <input type="number" id="betAmount" class="bet-input" min="0" max="1000" placeholder="Enter amount">
+                        <button onclick="placeBet()" class="button btn-primary">Place Bet</button>
+                    </div>
+                    
+                    <div class="quick-bet-buttons">
+                        <button class="quick-bet" onclick="setQuickBet(0.25)">25% Kelly</button>
+                        <button class="quick-bet" onclick="setQuickBet(0.5)">50% Kelly</button>
+                        <button class="quick-bet" onclick="setQuickBet(1)">Full Kelly</button>
+                        <button class="quick-bet" onclick="setQuickBet(2)">2x Kelly</button>
+                    </div>
+                    
+                    <button onclick="skipBet()" class="button btn-secondary">Skip This Bet</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="game-over" style="display: none;">
+            <h2>Game Over!</h2>
+            <p id="gameOverMessage"></p>
+            <button onclick="restartGame()" class="button btn-danger">Start New Game</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-item">
+                <div class="stat-label">Bets Placed</div>
+                <div class="stat-value" id="betsPlaced">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Wins</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Losses</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-value" id="winRate">0%</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Best Balance</div>
+                <div class="stat-value" id="bestBalance">$1000</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <button onclick="restartGame()" class="button btn-secondary">Restart Game</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            balance: 1000,
+            betsPlaced: 0,
+            wins: 0,
+            losses: 0,
+            bestBalance: 1000,
+            currentBet: null,
+            gameOver: false,
+            showKellyHints: false
+        };
+
+        // Kelly's Criterion calculation
+        function calculateKelly(winProbability, payoutRatio) {
+            // Kelly formula: f = (bp - q) / b
+            // where:
+            // f = fraction of bankroll to bet
+            // b = odds received (payout ratio - 1)
+            // p = probability of winning
+            // q = probability of losing (1 - p)
+            
+            const p = winProbability;
+            const q = 1 - p;
+            const b = payoutRatio - 1;
+            
+            const kellyFraction = (b * p - q) / b;
+            return Math.max(0, kellyFraction); // Never bet negative amounts
+        }
+
+        // Generate a new betting opportunity
+        function generateNewBet() {
+            // Generate varied betting scenarios (mix of positive and negative expected value)
+            const scenarios = [
+                { winProb: 0.55, payout: 1.9 },  // Slight edge, lower payout (+4.5% EV)
+                { winProb: 0.6, payout: 1.8 },   // Better edge, lower payout (+8% EV)
+                { winProb: 0.7, payout: 1.5 },   // High edge, low payout (+5% EV)
+                { winProb: 0.52, payout: 2.0 },  // Slight edge, fair payout (+4% EV)
+                { winProb: 0.65, payout: 1.6 },  // Good edge, modest payout (+4% EV)
+                { winProb: 0.58, payout: 1.8 },  // Good edge, decent payout (+4.4% EV)
+                { winProb: 0.62, payout: 1.7 },  // Strong edge, modest payout (+5.4% EV)
+                { winProb: 0.54, payout: 1.95 }, // Moderate edge, good payout (+5.3% EV)
+                { winProb: 0.68, payout: 1.55 }, // High edge, lower payout (+5.4% EV)
+                { winProb: 0.57, payout: 1.85 }, // Decent edge, fair payout (+5.45% EV)
+                { winProb: 0.63, payout: 1.65 }, // Strong edge, modest payout (+3.95% EV)
+                { winProb: 0.59, payout: 1.75 }, // Good edge, decent payout (+3.25% EV)
+                { winProb: 0.56, payout: 1.9 },  // Moderate edge, good payout (+6.4% EV)
+                { winProb: 0.66, payout: 1.6 },  // High edge, modest payout (+5.6% EV)
+                { winProb: 0.53, payout: 1.98 }, // Small edge, fair payout (+4.94% EV)
+                { winProb: 0.61, payout: 1.7 },  // Strong edge, decent payout (+3.7% EV)
+                { winProb: 0.72, payout: 1.45 }, // Very high edge, low payout (+4.4% EV)
+                { winProb: 0.69, payout: 1.5 },  // High edge, low payout (+3.5% EV)
+                // Some negative EV scenarios to maintain challenge
+                { winProb: 0.45, payout: 2.1 },  // Negative edge, higher payout (-5.5% EV) - SKIP
+                { winProb: 0.4, payout: 2.3 },   // Bad edge, high payout (-8% EV) - SKIP
+                { winProb: 0.42, payout: 2.2 },  // Bad edge, decent payout (-7.6% EV) - SKIP
+                { winProb: 0.48, payout: 1.9 },  // Slight negative edge (-8.8% EV) - SKIP
+                { winProb: 0.35, payout: 2.6 },  // Very bad edge, high payout (-9% EV) - SKIP
+                { winProb: 0.38, payout: 2.4 },  // Poor edge, good payout (-8.8% EV) - SKIP
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            return {
+                winProbability: scenario.winProb,
+                payoutRatio: scenario.payout,
+                expectedValue: (scenario.winProb * scenario.payout) + ((1 - scenario.winProb) * 0) - 1
+            };
+        }
+
+        // Update the display with current bet information
+        function updateBetDisplay() {
+            const bet = gameState.currentBet;
+            
+            document.getElementById('winProbability').textContent = Math.round(bet.winProbability * 100) + '%';
+            document.getElementById('payoutRatio').textContent = bet.payoutRatio.toFixed(1) + ':1';
+            
+            // Calculate and display Kelly recommendation
+            const kellyFraction = calculateKelly(bet.winProbability, bet.payoutRatio);
+            const kellyPercent = Math.round(kellyFraction * 100);
+            const kellyAmount = Math.round(gameState.balance * kellyFraction);
+            
+            document.getElementById('kellyRecommendation').textContent = kellyPercent + '%';
+            document.getElementById('kellyAmount').textContent = kellyAmount;
+            
+            // Add advice based on expected value and Kelly recommendation
+            const kellyAdviceElement = document.getElementById('kellyAdvice');
+            const kellySection = document.getElementById('kellyHintsBox');
+            
+            if (bet.expectedValue < 0) {
+                kellyAdviceElement.textContent = "⚠️ NEGATIVE EXPECTED VALUE - You should SKIP this bet! Never bet when the odds are against you.";
+                kellyAdviceElement.style.color = '#d69e2e';
+                kellySection.classList.add('negative-ev');
+            } else if (kellyFraction === 0) {
+                kellyAdviceElement.textContent = "Kelly suggests betting 0% - the edge is too small or non-existent.";
+                kellyAdviceElement.style.color = '#718096';
+                kellySection.classList.remove('negative-ev');
+            } else if (kellyFraction > 0.25) {
+                kellyAdviceElement.textContent = "Strong edge detected! Kelly suggests a substantial bet, but be careful not to over-bet.";
+                kellyAdviceElement.style.color = '#38a169';
+                kellySection.classList.remove('negative-ev');
+            } else {
+                kellyAdviceElement.textContent = "Moderate edge - Kelly suggests a conservative bet size for steady growth.";
+                kellyAdviceElement.style.color = '#4299e1';
+                kellySection.classList.remove('negative-ev');
+            }
+            
+            // Update bet input max
+            document.getElementById('betAmount').max = gameState.balance;
+        }
+
+        // Set quick bet amounts based on Kelly recommendation
+        function setQuickBet(multiplier) {
+            const bet = gameState.currentBet;
+            const kellyFraction = calculateKelly(bet.winProbability, bet.payoutRatio);
+            
+            // For negative expected value bets, Kelly fraction will be 0
+            if (bet.expectedValue < 0 || kellyFraction === 0) {
+                document.getElementById('betAmount').value = 0;
+                return;
+            }
+            
+            const kellyAmount = Math.round(gameState.balance * kellyFraction * multiplier);
+            const maxBet = Math.min(kellyAmount, gameState.balance);
+            
+            document.getElementById('betAmount').value = Math.max(0, maxBet);
+        }
+
+        // Place a bet
+        function placeBet() {
+            if (gameState.gameOver) return;
+            
+            const betAmount = parseInt(document.getElementById('betAmount').value) || 0;
+            
+            if (betAmount <= 0) {
+                alert('Please enter a valid bet amount!');
+                return;
+            }
+            
+            if (betAmount > gameState.balance) {
+                alert('You cannot bet more than your current balance!');
+                return;
+            }
+            
+            // Simulate the bet outcome
+            const won = Math.random() < gameState.currentBet.winProbability;
+            
+            gameState.betsPlaced++;
+            
+            if (won) {
+                const winnings = Math.round(betAmount * gameState.currentBet.payoutRatio);
+                gameState.balance = gameState.balance - betAmount + winnings;
+                gameState.wins++;
+                
+                showResult(`You won! +$${winnings - betAmount}`, 'win');
+            } else {
+                gameState.balance -= betAmount;
+                gameState.losses++;
+                
+                showResult(`You lost! -$${betAmount}`, 'loss');
+            }
+            
+            // Update best balance
+            if (gameState.balance > gameState.bestBalance) {
+                gameState.bestBalance = gameState.balance;
+            }
+            
+            // Check for game over
+            if (gameState.balance <= 0) {
+                endGame('bankruptcy');
+                return;
+            }
+            
+            // Update displays and generate new bet
+            updateDisplay();
+            setTimeout(() => {
+                generateNextBet();
+            }, 2000);
+        }
+
+        // Skip current bet
+        function skipBet() {
+            if (gameState.gameOver) return;
+            generateNextBet();
+        }
+
+        // Toggle Kelly's Criterion hints
+        function toggleKellyHints() {
+            gameState.showKellyHints = !gameState.showKellyHints;
+            const hintsBox = document.getElementById('kellyHintsBox');
+            const toggleBtn = document.getElementById('kellyToggleBtn');
+            
+            if (gameState.showKellyHints) {
+                hintsBox.style.display = 'block';
+                toggleBtn.textContent = 'Hide Kelly\'s Criterion Hints';
+                toggleBtn.classList.remove('btn-secondary');
+                toggleBtn.classList.add('btn-primary');
+            } else {
+                hintsBox.style.display = 'none';
+                toggleBtn.textContent = 'Show Kelly\'s Criterion Hints';
+                toggleBtn.classList.remove('btn-primary');
+                toggleBtn.classList.add('btn-secondary');
+            }
+        }
+
+        // Show bet result
+        function showResult(message, type) {
+            const betSection = document.querySelector('.bet-section');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'bet-result';
+            resultDiv.style.cssText = `
+                padding: 1rem;
+                margin: 1rem 0;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 1.1rem;
+                ${type === 'win' ? 'background: #c6f6d5; color: #22543d; border: 2px solid #48bb78;' : 'background: #fed7d7; color: #c53030; border: 2px solid #f56565;'}
+            `;
+            resultDiv.textContent = message;
+            
+            betSection.appendChild(resultDiv);
+            
+            setTimeout(() => {
+                resultDiv.remove();
+            }, 2000);
+        }
+
+        // Generate next betting opportunity
+        function generateNextBet() {
+            gameState.currentBet = generateNewBet();
+            updateBetDisplay();
+        }
+
+        // Update all displays
+        function updateDisplay() {
+            document.getElementById('balance').textContent = gameState.balance;
+            document.getElementById('betsPlaced').textContent = gameState.betsPlaced;
+            document.getElementById('wins').textContent = gameState.wins;
+            document.getElementById('losses').textContent = gameState.losses;
+            
+            const winRate = gameState.betsPlaced > 0 ? Math.round((gameState.wins / gameState.betsPlaced) * 100) : 0;
+            document.getElementById('winRate').textContent = winRate + '%';
+            document.getElementById('bestBalance').textContent = '$' + gameState.bestBalance;
+        }
+
+        // End the game
+        function endGame(reason) {
+            gameState.gameOver = true;
+            
+            const gameArea = document.getElementById('gameArea');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const gameOverMessage = document.getElementById('gameOverMessage');
+            
+            gameArea.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            
+            if (reason === 'bankruptcy') {
+                gameOverMessage.innerHTML = `
+                    <p>You've gone bankrupt! Your balance reached $0.</p>
+                    <p>You placed ${gameState.betsPlaced} bets with a ${Math.round((gameState.wins / gameState.betsPlaced) * 100)}% win rate.</p>
+                    <p>Your best balance was $${gameState.bestBalance}.</p>
+                    <br>
+                    <small><strong>Kelly's Criterion Tip:</strong> Never bet more than the Kelly percentage suggests, especially when the edge is small. Over-betting is the fastest way to ruin!</small>
+                `;
+            }
+        }
+
+        // Restart the game
+        function restartGame() {
+            gameState = {
+                balance: 1000,
+                betsPlaced: 0,
+                wins: 0,
+                losses: 0,
+                bestBalance: 1000,
+                currentBet: null,
+                gameOver: false,
+                showKellyHints: false
+            };
+            
+            // Reset hint visibility
+            document.getElementById('kellyHintsBox').style.display = 'none';
+            const toggleBtn = document.getElementById('kellyToggleBtn');
+            toggleBtn.textContent = 'Show Kelly\'s Criterion Hints';
+            toggleBtn.classList.remove('btn-primary');
+            toggleBtn.classList.add('btn-secondary');
+            
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            updateDisplay();
+            generateNextBet();
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            generateNextBet();
+            updateDisplay();
+            
+            // Add enter key support for bet input
+            document.getElementById('betAmount').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    placeBet();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
