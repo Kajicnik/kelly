@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelly's Criterion Betting Game</title>
+    <title>Sázkové hry podle Kellyho kritéria</title>
     <style>
         * {
             margin: 0;
@@ -266,38 +266,38 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>Kelly's Criterion Betting Game</h1>
-        <p class="subtitle">Maximize your wealth using optimal betting strategies</p>
+        <h1>Sázkové hry podle Kellyho kritéria</h1>
+        <p class="subtitle">Maximalizujte své bohatství pomocí optimálních sázkových strategií</p>
         
         <div class="balance-section">
-            <div class="balance">Balance: $<span id="balance">1000</span></div>
+            <div class="balance">Zůstatek: $<span id="balance">1000</span></div>
         </div>
 
         <div id="gameArea">
             <div class="bet-section">
-                <h3>Current Betting Opportunity</h3>
+                <h3>Aktuální sázková příležitost</h3>
                 <div class="bet-info">
                     <div class="bet-stat">
-                        <div class="bet-stat-label">Win Probability</div>
+                        <div class="bet-stat-label">Pravděpodobnost výhry</div>
                         <div class="bet-stat-value" id="winProbability">50%</div>
                     </div>
                     <div class="bet-stat">
-                        <div class="bet-stat-label">Payout Ratio</div>
+                        <div class="bet-stat-label">Poměr výplaty</div>
                         <div class="bet-stat-value" id="payoutRatio">2:1</div>
                     </div>
                 </div>
 
                 <div class="kelly-toggle-section">
                     <button onclick="toggleKellyHints()" class="button btn-secondary" id="kellyToggleBtn">
-                        Show Kelly's Criterion Hints
+                        Zobrazit rady Kellyho kritéria
                     </button>
                 </div>
 
                 <div class="kelly-section" id="kellyHintsBox" style="display: none;">
                     <div class="kelly-recommendation">
-                        Kelly's Criterion suggests betting: <span id="kellyRecommendation">10%</span> of bankroll
+                        Kellyho kritérium doporučuje vsadit: <span id="kellyRecommendation">10%</span> kapitálu
                         <br>
-                        <small>That's $<span id="kellyAmount">100</span> from your current balance</small>
+                        <small>To je $<span id="kellyAmount">100</span> z vašeho současného zůstatku</small>
                         <br><br>
                         <small id="kellyAdvice" style="font-style: italic;"></small>
                     </div>
@@ -305,54 +305,54 @@
 
                 <div class="betting-controls">
                     <div class="bet-input-section">
-                        <label for="betAmount">Bet Amount: $</label>
-                        <input type="number" id="betAmount" class="bet-input" min="0" max="1000" placeholder="Enter amount">
-                        <button onclick="placeBet()" class="button btn-primary">Place Bet</button>
+                        <label for="betAmount">Výše sázky: $</label>
+                        <input type="number" id="betAmount" class="bet-input" min="0" max="1000" placeholder="Zadejte částku">
+                        <button onclick="placeBet()" class="button btn-primary">Vsadit</button>
                     </div>
                     
                     <div class="quick-bet-buttons">
                         <button class="quick-bet" onclick="setQuickBet(0.25)">25% Kelly</button>
                         <button class="quick-bet" onclick="setQuickBet(0.5)">50% Kelly</button>
-                        <button class="quick-bet" onclick="setQuickBet(1)">Full Kelly</button>
+                        <button class="quick-bet" onclick="setQuickBet(1)">Plné Kelly</button>
                         <button class="quick-bet" onclick="setQuickBet(2)">2x Kelly</button>
                     </div>
                     
-                    <button onclick="skipBet()" class="button btn-secondary">Skip This Bet</button>
+                    <button onclick="skipBet()" class="button btn-secondary">Přeskočit sázku</button>
                 </div>
             </div>
         </div>
 
         <div id="gameOverScreen" class="game-over" style="display: none;">
-            <h2>Game Over!</h2>
+            <h2>Konec hry!</h2>
             <p id="gameOverMessage"></p>
-            <button onclick="restartGame()" class="button btn-danger">Start New Game</button>
+            <button onclick="restartGame()" class="button btn-danger">Začít novou hru</button>
         </div>
 
         <div class="stats-section">
             <div class="stat-item">
-                <div class="stat-label">Bets Placed</div>
+                <div class="stat-label">Počet sázek</div>
                 <div class="stat-value" id="betsPlaced">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Wins</div>
+                <div class="stat-label">Výhry</div>
                 <div class="stat-value" id="wins">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Losses</div>
+                <div class="stat-label">Prohry</div>
                 <div class="stat-value" id="losses">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Win Rate</div>
+                <div class="stat-label">Úspěšnost</div>
                 <div class="stat-value" id="winRate">0%</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Best Balance</div>
+                <div class="stat-label">Nejlepší zůstatek</div>
                 <div class="stat-value" id="bestBalance">$1000</div>
             </div>
         </div>
 
         <div style="margin-top: 1.5rem;">
-            <button onclick="restartGame()" class="button btn-secondary">Restart Game</button>
+            <button onclick="restartGame()" class="button btn-secondary">Restartovat hru</button>
         </div>
     </div>
 
@@ -388,41 +388,48 @@
 
         // Generate a new betting opportunity
         function generateNewBet() {
-            // Generate varied betting scenarios (mix of positive and negative expected value)
-            const scenarios = [
-                { winProb: 0.55, payout: 1.9 },  // Slight edge, lower payout (+4.5% EV)
-                { winProb: 0.6, payout: 1.8 },   // Better edge, lower payout (+8% EV)
-                { winProb: 0.7, payout: 1.5 },   // High edge, low payout (+5% EV)
-                { winProb: 0.52, payout: 2.0 },  // Slight edge, fair payout (+4% EV)
-                { winProb: 0.65, payout: 1.6 },  // Good edge, modest payout (+4% EV)
-                { winProb: 0.58, payout: 1.8 },  // Good edge, decent payout (+4.4% EV)
-                { winProb: 0.62, payout: 1.7 },  // Strong edge, modest payout (+5.4% EV)
-                { winProb: 0.54, payout: 1.95 }, // Moderate edge, good payout (+5.3% EV)
-                { winProb: 0.68, payout: 1.55 }, // High edge, lower payout (+5.4% EV)
-                { winProb: 0.57, payout: 1.85 }, // Decent edge, fair payout (+5.45% EV)
-                { winProb: 0.63, payout: 1.65 }, // Strong edge, modest payout (+3.95% EV)
-                { winProb: 0.59, payout: 1.75 }, // Good edge, decent payout (+3.25% EV)
-                { winProb: 0.56, payout: 1.9 },  // Moderate edge, good payout (+6.4% EV)
-                { winProb: 0.66, payout: 1.6 },  // High edge, modest payout (+5.6% EV)
-                { winProb: 0.53, payout: 1.98 }, // Small edge, fair payout (+4.94% EV)
-                { winProb: 0.61, payout: 1.7 },  // Strong edge, decent payout (+3.7% EV)
-                { winProb: 0.72, payout: 1.45 }, // Very high edge, low payout (+4.4% EV)
-                { winProb: 0.69, payout: 1.5 },  // High edge, low payout (+3.5% EV)
-                // Some negative EV scenarios to maintain challenge
-                { winProb: 0.45, payout: 2.1 },  // Negative edge, higher payout (-5.5% EV) - SKIP
-                { winProb: 0.4, payout: 2.3 },   // Bad edge, high payout (-8% EV) - SKIP
-                { winProb: 0.42, payout: 2.2 },  // Bad edge, decent payout (-7.6% EV) - SKIP
-                { winProb: 0.48, payout: 1.9 },  // Slight negative edge (-8.8% EV) - SKIP
-                { winProb: 0.35, payout: 2.6 },  // Very bad edge, high payout (-9% EV) - SKIP
-                { winProb: 0.38, payout: 2.4 },  // Poor edge, good payout (-8.8% EV) - SKIP
-            ];
+            // Generate random betting scenarios with varied probabilities
+            // 75% chance of positive EV, 25% chance of negative EV
             
-            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            let winProb, payout, expectedValue;
+            
+            if (Math.random() < 0.75) {
+                // Generate positive EV scenario (75% of the time)
+                // More varied win probabilities: 30% to 80%
+                winProb = 0.3 + Math.random() * 0.5;
+                
+                // Calculate a payout that gives positive EV but varies in attractiveness
+                const fairPayout = 1 / winProb; // Break-even payout
+                const edgeMultiplier = 0.95 + Math.random() * 0.15; // 95% to 110% of fair odds
+                payout = Math.round((fairPayout * edgeMultiplier) * 20) / 20; // Round to nearest 0.05
+                
+                // Ensure minimum positive EV of 1%
+                if (winProb * payout + (1 - winProb) * 0 - 1 < 0.01) {
+                    payout = Math.round(((1.01) / winProb) * 20) / 20;
+                }
+            } else {
+                // Generate negative EV scenario (25% of the time)
+                // Even more varied probabilities for challenge: 20% to 70%
+                winProb = 0.2 + Math.random() * 0.5;
+                
+                // Calculate a payout that gives negative EV
+                const fairPayout = 1 / winProb;
+                const edgeMultiplier = 0.75 + Math.random() * 0.2; // 75% to 95% of fair odds
+                payout = Math.round((fairPayout * edgeMultiplier) * 20) / 20; // Round to nearest 0.05
+            }
+            
+            // Ensure payout is at least 1.1x and at most 5x for reasonable betting
+            payout = Math.max(1.1, Math.min(5.0, payout));
+            
+            // Recalculate expected value
+            expectedValue = (winProb * payout) + ((1 - winProb) * 0) - 1;
+            
+            const scenario = { winProb, payout };
             
             return {
                 winProbability: scenario.winProb,
                 payoutRatio: scenario.payout,
-                expectedValue: (scenario.winProb * scenario.payout) + ((1 - scenario.winProb) * 0) - 1
+                expectedValue: expectedValue
             };
         }
 
@@ -431,7 +438,7 @@
             const bet = gameState.currentBet;
             
             document.getElementById('winProbability').textContent = Math.round(bet.winProbability * 100) + '%';
-            document.getElementById('payoutRatio').textContent = bet.payoutRatio.toFixed(1) + ':1';
+            document.getElementById('payoutRatio').textContent = bet.payoutRatio.toFixed(1) + 'x';
             
             // Calculate and display Kelly recommendation
             const kellyFraction = calculateKelly(bet.winProbability, bet.payoutRatio);
@@ -446,19 +453,19 @@
             const kellySection = document.getElementById('kellyHintsBox');
             
             if (bet.expectedValue < 0) {
-                kellyAdviceElement.textContent = "⚠️ NEGATIVE EXPECTED VALUE - You should SKIP this bet! Never bet when the odds are against you.";
+                kellyAdviceElement.textContent = "⚠️ ZÁPORNÁ OČEKÁVANÁ HODNOTA - Tuto sázku byste měli PŘESKOČIT! Nikdy nesázejte, když jsou kurzy proti vám.";
                 kellyAdviceElement.style.color = '#d69e2e';
                 kellySection.classList.add('negative-ev');
             } else if (kellyFraction === 0) {
-                kellyAdviceElement.textContent = "Kelly suggests betting 0% - the edge is too small or non-existent.";
+                kellyAdviceElement.textContent = "Kelly doporučuje vsadit 0% - výhoda je příliš malá nebo neexistuje.";
                 kellyAdviceElement.style.color = '#718096';
                 kellySection.classList.remove('negative-ev');
             } else if (kellyFraction > 0.25) {
-                kellyAdviceElement.textContent = "Strong edge detected! Kelly suggests a substantial bet, but be careful not to over-bet.";
+                kellyAdviceElement.textContent = "Zjištěna silná výhoda! Kelly doporučuje podstatnou sázku, ale pozor na přesázení.";
                 kellyAdviceElement.style.color = '#38a169';
                 kellySection.classList.remove('negative-ev');
             } else {
-                kellyAdviceElement.textContent = "Moderate edge - Kelly suggests a conservative bet size for steady growth.";
+                kellyAdviceElement.textContent = "Mírná výhoda - Kelly doporučuje konzervativní výši sázky pro stálý růst.";
                 kellyAdviceElement.style.color = '#4299e1';
                 kellySection.classList.remove('negative-ev');
             }
@@ -491,12 +498,12 @@
             const betAmount = parseInt(document.getElementById('betAmount').value) || 0;
             
             if (betAmount <= 0) {
-                alert('Please enter a valid bet amount!');
+                alert('Zadejte platnou výši sázky!');
                 return;
             }
             
             if (betAmount > gameState.balance) {
-                alert('You cannot bet more than your current balance!');
+                alert('Nemůžete vsadit více než je váš současný zůstatek!');
                 return;
             }
             
@@ -506,16 +513,17 @@
             gameState.betsPlaced++;
             
             if (won) {
-                const winnings = Math.round(betAmount * gameState.currentBet.payoutRatio);
-                gameState.balance = gameState.balance - betAmount + winnings;
+                const totalPayout = Math.round(betAmount * gameState.currentBet.payoutRatio);
+                const profit = totalPayout - betAmount;
+                gameState.balance = gameState.balance - betAmount + totalPayout;
                 gameState.wins++;
                 
-                showResult(`You won! +$${winnings - betAmount}`, 'win');
+                showResult(`Vyhráli jste! +$${profit}`, 'win');
             } else {
                 gameState.balance -= betAmount;
                 gameState.losses++;
                 
-                showResult(`You lost! -$${betAmount}`, 'loss');
+                showResult(`Prohráli jste! -$${betAmount}`, 'loss');
             }
             
             // Update best balance
@@ -550,12 +558,12 @@
             
             if (gameState.showKellyHints) {
                 hintsBox.style.display = 'block';
-                toggleBtn.textContent = 'Hide Kelly\'s Criterion Hints';
+                toggleBtn.textContent = 'Skrýt rady Kellyho kritéria';
                 toggleBtn.classList.remove('btn-secondary');
                 toggleBtn.classList.add('btn-primary');
             } else {
                 hintsBox.style.display = 'none';
-                toggleBtn.textContent = 'Show Kelly\'s Criterion Hints';
+                toggleBtn.textContent = 'Zobrazit rady Kellyho kritéria';
                 toggleBtn.classList.remove('btn-primary');
                 toggleBtn.classList.add('btn-secondary');
             }
@@ -614,11 +622,11 @@
             
             if (reason === 'bankruptcy') {
                 gameOverMessage.innerHTML = `
-                    <p>You've gone bankrupt! Your balance reached $0.</p>
-                    <p>You placed ${gameState.betsPlaced} bets with a ${Math.round((gameState.wins / gameState.betsPlaced) * 100)}% win rate.</p>
-                    <p>Your best balance was $${gameState.bestBalance}.</p>
+                    <p>Zbankrotovali jste! Váš zůstatek dosáhl $0.</p>
+                    <p>Vsadili jste ${gameState.betsPlaced} sázek s úspěšností ${Math.round((gameState.wins / gameState.betsPlaced) * 100)}%.</p>
+                    <p>Váš nejlepší zůstatek byl $${gameState.bestBalance}.</p>
                     <br>
-                    <small><strong>Kelly's Criterion Tip:</strong> Never bet more than the Kelly percentage suggests, especially when the edge is small. Over-betting is the fastest way to ruin!</small>
+                    <small><strong>Tip Kellyho kritéria:</strong> Nikdy nesázejte více, než doporučuje Kellyho procento, zvláště když je výhoda malá. Přesázení je nejrychlejší cesta k bankrotu!</small>
                 `;
             }
         }
@@ -639,7 +647,7 @@
             // Reset hint visibility
             document.getElementById('kellyHintsBox').style.display = 'none';
             const toggleBtn = document.getElementById('kellyToggleBtn');
-            toggleBtn.textContent = 'Show Kelly\'s Criterion Hints';
+            toggleBtn.textContent = 'Zobrazit rady Kellyho kritéria';
             toggleBtn.classList.remove('btn-primary');
             toggleBtn.classList.add('btn-secondary');
             
